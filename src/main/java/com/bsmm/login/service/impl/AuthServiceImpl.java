@@ -32,7 +32,8 @@ public class AuthServiceImpl implements AuthService {
                 .flatMap(login -> authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(
                                 login.username(), login.password()))
-                        .map(tokenProvider::getResponse))
+                        .flatMap(authentication -> userRepository.findByUsername(authentication.getName())
+                                .map(tokenProvider::getResponse)))
                 .flatMap(loginResponse -> redisService.saveSession(loginResponse).map(aBoolean -> {
                     log.info("Redis save {}", aBoolean);
                     return loginResponse;
@@ -44,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
         return stringMono.filterWhen(token -> Mono.just(tokenProvider.validateToken(token)))
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token caducado")))
                 .flatMap(token -> userRepository.findByUsername(tokenProvider.getUserNameFromJwt(token)))
-                .flatMap(user -> Mono.just(tokenProvider.getResponse(null)));
+                .flatMap(user -> Mono.just(tokenProvider.getResponse(user)));
     }
 
     @Override

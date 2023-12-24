@@ -23,12 +23,12 @@ public class AuthController {
                 .map(ResponseEntity::ok);
     }
 
-    @PostMapping("/auth/refresh-token")
+    @PostMapping("/refresh-token")
     public Mono<LoginResponse> refreshToken(@RequestHeader("Authorization") String token) {
         return authService.refreshToken(Mono.just(token));
     }
 
-    @PostMapping("/auth/sign-out")
+    @PostMapping("/logout")
     public Mono<ResponseEntity<Void>> logoutUser(@RequestHeader("Authorization") String token) {
         return authService.logoutUser(Mono.just(token)).then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }

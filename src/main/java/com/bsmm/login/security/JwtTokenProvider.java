@@ -1,5 +1,6 @@
 package com.bsmm.login.security;
 
+import com.bsmm.login.domain.UserEntity;
 import com.bsmm.login.service.dto.LoginResponse;
 import com.bsmm.login.util.Constants;
 import io.jsonwebtoken.Claims;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
@@ -34,15 +36,14 @@ public class JwtTokenProvider {
         secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(Authentication authentication, Date now, long expiration) {
-        String username = authentication.getName();
-        var claimsBuilder = Jwts.claims().subject(username);
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+    public String createToken(UserEntity user, Date now, long expiration) {
+        var claimsBuilder = Jwts.claims().subject(user.getUsername());
+        Collection<? extends GrantedAuthority> authorities = user.getRoles().stream().map(eRole -> new SimpleGrantedAuthority(eRole.name())).toList();
         if (!authorities.isEmpty()) {
             claimsBuilder.add(Constants.CLAIM_ROLES, authorities.stream().map(GrantedAuthority::getAuthority).toList());
         }
-        //claimsBuilder.add(Constants.CLAIM_EMAIL, details.getEmail());
-        //claimsBuilder.add(Constants.CLAIM_NAME, details.getUsername());
+        claimsBuilder.add(Constants.CLAIM_EMAIL, user.getUsername());
+        claimsBuilder.add(Constants.CLAIM_NAME, user.getFullName());
         return Jwts.builder()
                 .claims(claimsBuilder.build())
                 .issuedAt(now)
@@ -92,14 +93,14 @@ public class JwtTokenProvider {
         return false;
     }
 
-    public LoginResponse getResponse(Authentication authentication) {
+    public LoginResponse getResponse(UserEntity user) {
         long currentTime = System.currentTimeMillis();
         long expirationAT = currentTime + jwtProperties.getExpirationAt();
         long expirationRT = currentTime + jwtProperties.getExpirationRt();
         Date now = new Date();
         return new LoginResponse(Constants.TOKEN_TYPE,
-                createToken(authentication, now, expirationAT),
-                createToken(authentication, now, expirationRT),
+                createToken(user, now, expirationAT),
+                createToken(user, now, expirationRT),
                 expirationAT);
     }
 }
