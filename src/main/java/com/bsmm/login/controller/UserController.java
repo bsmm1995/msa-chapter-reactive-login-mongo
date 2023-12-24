@@ -30,6 +30,4 @@ public class UserController {
         return userService.create(Mono.just(dto))
                 .map(userDTO -> ResponseEntity.status(HttpStatus.CREATED).body(userDTO));
     }
-
-
 }

@@ -65,6 +65,21 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    public String getUserNameFromJwt(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(depureToken(token)).getBody().getSubject();
+    }
+
+    private String depureToken(String token) {
+        if (token == null) {
+            return null;
+        }
+        return token.replace(Constants.TOKEN_PREFIX, "");
+    }
+
+    public String getClaimId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(depureToken(token)).getBody().getId();
+    }
+
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
