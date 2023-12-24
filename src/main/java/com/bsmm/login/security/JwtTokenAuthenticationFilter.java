@@ -1,5 +1,6 @@
 package com.bsmm.login.security;
 
+import com.bsmm.login.util.Constants;
 import io.micrometer.common.lang.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -14,8 +15,6 @@ import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 public class JwtTokenAuthenticationFilter implements WebFilter {
-
-    public static final String HEADER_PREFIX = "Bearer ";
 
     private final JwtTokenProvider tokenProvider;
 
@@ -33,7 +32,7 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
 
     private String resolveToken(ServerHttpRequest request) {
         String bearerToken = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(HEADER_PREFIX)) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(Constants.TOKEN_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null;

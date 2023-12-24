@@ -19,11 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-
-import static java.util.stream.Collectors.joining;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -40,24 +36,30 @@ public class JwtTokenProvider {
 
     public String createToken(Authentication authentication, Date now, long expiration) {
         String username = authentication.getName();
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         var claimsBuilder = Jwts.claims().subject(username);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (!authorities.isEmpty()) {
-            claimsBuilder.add(Constants.CLAIM_ROLES, authorities.stream()
-                    .map(GrantedAuthority::getAuthority).collect(joining(",")));
+            claimsBuilder.add(Constants.CLAIM_ROLES, authorities.stream().map(GrantedAuthority::getAuthority).toList());
         }
-        return Jwts.builder().claims(claimsBuilder.build()).issuedAt(now).expiration(new Date(expiration))
-                .signWith(secretKey, Jwts.SIG.HS256).compact();
+        //claimsBuilder.add(Constants.CLAIM_EMAIL, details.getEmail());
+        //claimsBuilder.add(Constants.CLAIM_NAME, details.getUsername());
+        return Jwts.builder()
+                .claims(claimsBuilder.build())
+                .issuedAt(now)
+                .id(UUID.randomUUID().toString())
+                .expiration(new Date(expiration))
+                .signWith(secretKey, Jwts.SIG.HS256)
+                .compact();
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
 
-        Object authoritiesClaim = claims.get(Constants.CLAIM_ROLES);
+        List<String> stringList = (ArrayList<String>) claims.get(Constants.CLAIM_ROLES);
 
-        Collection<? extends GrantedAuthority> authorities = authoritiesClaim == null
+        Collection<? extends GrantedAuthority> authorities = stringList == null
                 ? AuthorityUtils.NO_AUTHORITIES
-                : AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaim.toString());
+                : AuthorityUtils.createAuthorityList(stringList);
 
         User principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);

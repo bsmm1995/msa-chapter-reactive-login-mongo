@@ -11,9 +11,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO implements Serializable {
-    private Long id;
-    private String username;
+    private String id;
     private String fullName;
-    private Set<String> roles;
+    private String username;
     private Boolean isActive;
+    private Set<String> roles;
 }
