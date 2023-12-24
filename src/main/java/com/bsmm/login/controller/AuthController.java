@@ -1,7 +1,7 @@
 package com.bsmm.login.controller;
 
 import com.bsmm.login.security.JwtTokenProvider;
-import com.bsmm.login.web.AuthenticationRequest;
+import com.bsmm.login.service.dto.LoginRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +29,7 @@ public class AuthController {
     private final ReactiveAuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public Mono<ResponseEntity> login(@Valid @RequestBody Mono<AuthenticationRequest> authRequest) {
+    public Mono<ResponseEntity> login(@Valid @RequestBody Mono<LoginRequest> authRequest) {
         return authRequest
                 .flatMap(login -> this.authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(

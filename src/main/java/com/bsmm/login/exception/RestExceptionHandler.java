@@ -1,4 +1,4 @@
-package com.bsmm.login.web;
+package com.bsmm.login.exception;
 
 import com.bsmm.login.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
