@@ -12,8 +12,8 @@ import java.net.URI;
 @RestControllerAdvice
 @Slf4j
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail exception(Exception ex) {
+    @ExceptionHandler(UserFoundException.class)
+    public ProblemDetail userFoundException(UserFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problemDetail.setTitle("Title");
         problemDetail.setType(URI.create("http://example.com/api/errors/not_found"));

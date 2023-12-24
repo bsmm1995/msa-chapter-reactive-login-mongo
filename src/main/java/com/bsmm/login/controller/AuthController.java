@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+@Validated
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Validated
 public class AuthController {
 
     private final JwtTokenProvider tokenProvider;

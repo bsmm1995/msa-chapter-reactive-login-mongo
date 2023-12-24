@@ -12,6 +12,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,20 +53,20 @@ public class SecurityConfig {
     @Bean
     public ReactiveUserDetailsService userDetailsService(UserRepository users) {
         return username -> users.findByUsername(username)
-                .map(u -> User
-                        .withUsername(u.getFullName()).password(u.getPassword())
-                        .authorities(u.getRoles().toArray(new String[0]))
-                        .accountExpired(!u.isActive())
-                        .credentialsExpired(!u.isActive())
-                        .disabled(!u.isActive())
-                        .accountLocked(!u.isActive())
+                .map(userEntity -> User
+                        .withUsername(userEntity.getFullName())
+                        .password(userEntity.getPassword())
+                        .authorities(userEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.name())).toList())
+                        .accountExpired(!userEntity.isActive())
+                        .credentialsExpired(!userEntity.isActive())
+                        .disabled(!userEntity.isActive())
+                        .accountLocked(!userEntity.isActive())
                         .build()
                 );
     }
 
     @Bean
-    public ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService,
-                                                                       PasswordEncoder passwordEncoder) {
+    public ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         var authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
         authenticationManager.setPasswordEncoder(passwordEncoder);
         return authenticationManager;

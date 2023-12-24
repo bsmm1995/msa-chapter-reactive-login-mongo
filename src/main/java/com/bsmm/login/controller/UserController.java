@@ -1,22 +1,24 @@
 package com.bsmm.login.controller;
 
-import com.bsmm.login.domain.User;
-import com.bsmm.login.repository.UserRepository;
+import com.bsmm.login.service.UserService;
+import com.bsmm.login.service.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
+@Validated
 @RestController
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository users;
+    private final UserService userService;
 
-    @GetMapping("/users/{username}")
-    public Mono<User> get(@PathVariable() String username) {
-        return this.users.findByUsername(username);
+    @GetMapping
+    public Flux<UserDTO> getAll() {
+        return userService.getAll();
     }
-
 }

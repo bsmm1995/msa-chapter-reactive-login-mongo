@@ -1,5 +1,6 @@
 package com.bsmm.login.domain;
 
+import com.bsmm.login.domain.enums.ERole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(value = "users")
-public class User {
+public class UserEntity {
     @Id
     private String id;
 
@@ -32,5 +33,5 @@ public class User {
     private boolean isActive = Boolean.TRUE;
 
     @Builder.Default()
-    private List<String> roles = new ArrayList<>();
+    private List<ERole> roles = new ArrayList<>();
 }

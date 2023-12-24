@@ -1,6 +1,6 @@
 package com.bsmm.login.config;
 
-import com.bsmm.login.domain.User;
+import com.bsmm.login.domain.UserEntity;
 import com.bsmm.login.domain.enums.ERole;
 import com.bsmm.login.repository.UserRepository;
 import com.bsmm.login.security.JwtProperties;
@@ -32,8 +32,8 @@ public class DataInitializer {
                 .thenMany(
                         Flux.just(jwtProperties.getUser())
                                 .flatMap(username -> {
-                                    List<String> roles = Arrays.asList(ERole.ROLE_USER.toString(), ERole.ROLE_ADMIN.toString());
-                                    User user = User.builder()
+                                    List<ERole> roles = Arrays.asList(ERole.ROLE_USER, ERole.ROLE_ADMIN);
+                                    UserEntity user = UserEntity.builder()
                                             .roles(roles)
                                             .fullName(username)
                                             .password(passwordEncoder.encode(jwtProperties.getPassword()))
