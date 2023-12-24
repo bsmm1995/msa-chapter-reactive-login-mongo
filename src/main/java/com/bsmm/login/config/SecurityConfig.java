@@ -24,9 +24,7 @@ import reactor.core.publisher.Mono;
 public class SecurityConfig {
 
     @Bean
-    SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http,
-                                                JwtTokenProvider tokenProvider,
-                                                ReactiveAuthenticationManager reactiveAuthenticationManager) {
+    SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http, JwtTokenProvider tokenProvider, ReactiveAuthenticationManager reactiveAuthenticationManager) {
         final String PATH_POSTS = "/posts/**";
 
         return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
@@ -43,22 +41,16 @@ public class SecurityConfig {
                 )
                 .addFilterAt(new JwtTokenAuthenticationFilter(tokenProvider), SecurityWebFiltersOrder.HTTP_BASIC)
                 .build();
-
-
     }
 
-    private Mono<AuthorizationDecision> currentUserMatchesPath(Mono<Authentication> authentication,
-                                                               AuthorizationContext context) {
-
+    private Mono<AuthorizationDecision> currentUserMatchesPath(Mono<Authentication> authentication, AuthorizationContext context) {
         return authentication
                 .map(a -> context.getVariables().get("user").equals(a.getName()))
                 .map(AuthorizationDecision::new);
-
     }
 
     @Bean
     public ReactiveUserDetailsService userDetailsService(UserRepository users) {
-
         return username -> users.findByUsername(username)
                 .map(u -> User
                         .withUsername(u.getFullName()).password(u.getPassword())
@@ -78,5 +70,4 @@ public class SecurityConfig {
         authenticationManager.setPasswordEncoder(passwordEncoder);
         return authenticationManager;
     }
-
 }

@@ -1,5 +1,6 @@
 package com.bsmm.login.security;
 
+import io.micrometer.common.lang.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -19,7 +20,7 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
     private final JwtTokenProvider tokenProvider;
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String token = resolveToken(exchange.getRequest());
         if (StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
             return Mono.fromCallable(() -> this.tokenProvider.getAuthentication(token))
@@ -37,5 +38,4 @@ public class JwtTokenAuthenticationFilter implements WebFilter {
         }
         return null;
     }
-
 }

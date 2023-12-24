@@ -3,13 +3,12 @@ package com.bsmm.login.security;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "jwt")
 @Data
+@ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
-
-    private String secretKey = "rzxlszyykpbgqcflzxsqcysyhljt";
-
-    // validity in milliseconds
-    private long validityInMs = 3600000; // 1h
-
+    private String secretKey;
+    private long expirationAt;
+    private long expirationRt;
+    private String user;
+    private String password;
 }

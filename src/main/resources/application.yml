@@ -1,5 +1,9 @@
 jwt:
-  secretKey: ecf1222c-88fd-47f3-988f-bdd78bade1ad
+  secret-key: ecf1222c-88fd-47f3-988f-bdd78bade1ad
+  expiration-at: 900000
+  expiration-rt: 1800000
+  user: admin
+  password: Admin_1234
 
 logging:
   level:

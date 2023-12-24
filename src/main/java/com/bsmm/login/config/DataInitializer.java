@@ -1,7 +1,9 @@
 package com.bsmm.login.config;
 
 import com.bsmm.login.domain.User;
+import com.bsmm.login.domain.enums.ERole;
 import com.bsmm.login.repository.UserRepository;
+import com.bsmm.login.security.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -17,24 +19,24 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class DataInitializer {
+
     private final UserRepository users;
 
     private final PasswordEncoder passwordEncoder;
 
+    private final JwtProperties jwtProperties;
+
     @EventListener(value = ApplicationReadyEvent.class)
     public void init() {
-        log.info("start data initialization...");
-
-
         var userFlux = this.users.deleteAll()
                 .thenMany(
-                        Flux.just("admin")
+                        Flux.just(jwtProperties.getUser())
                                 .flatMap(username -> {
-                                    List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
+                                    List<String> roles = Arrays.asList(ERole.ROLE_USER.toString(), ERole.ROLE_ADMIN.toString());
                                     User user = User.builder()
                                             .roles(roles)
                                             .fullName(username)
-                                            .password(passwordEncoder.encode("Admin_1234"))
+                                            .password(passwordEncoder.encode(jwtProperties.getPassword()))
                                             .username(username + "@email.com")
                                             .build();
 
@@ -44,10 +46,9 @@ public class DataInitializer {
 
         userFlux.doOnSubscribe(data -> log.info("data:" + data))
                 .subscribe(
-                        data -> log.info("data:" + data), err -> log.error("error:" + err),
-                        () -> log.info("done initialization...")
+                        data -> log.info("Success: " + data),
+                        err -> log.error("Error: " + err),
+                        () -> log.info("OK...")
                 );
-
     }
-
 }

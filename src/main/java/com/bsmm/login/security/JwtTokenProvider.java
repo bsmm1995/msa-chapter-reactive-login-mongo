@@ -1,5 +1,6 @@
 package com.bsmm.login.security;
 
+import com.bsmm.login.util.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -15,11 +16,11 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
-import javax.crypto.SecretKey;
 
 import static java.util.stream.Collectors.joining;
 
@@ -27,8 +28,6 @@ import static java.util.stream.Collectors.joining;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
-    private static final String AUTHORITIES_KEY = "roles";
 
     private final JwtProperties jwtProperties;
 
@@ -47,14 +46,14 @@ public class JwtTokenProvider {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         var claimsBuilder = Jwts.claims().subject(username);
         if (!authorities.isEmpty()) {
-            claimsBuilder.add(AUTHORITIES_KEY, authorities.stream()
+            claimsBuilder.add(Constants.CLAIM_ROLES, authorities.stream()
                     .map(GrantedAuthority::getAuthority).collect(joining(",")));
         }
 
         var claims = claimsBuilder.build();
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + this.jwtProperties.getValidityInMs());
+        Date validity = new Date(now.getTime() + this.jwtProperties.getExpirationAt());
 
         return Jwts.builder().claims(claims).issuedAt(now).expiration(validity)
                 .signWith(this.secretKey, Jwts.SIG.HS256).compact();
@@ -65,7 +64,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.parser().verifyWith(this.secretKey).build()
                 .parseSignedClaims(token).getPayload();
 
-        Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
+        Object authoritiesClaim = claims.get(Constants.CLAIM_ROLES);
 
         Collection<? extends GrantedAuthority> authorities = authoritiesClaim == null
                 ? AuthorityUtils.NO_AUTHORITIES
@@ -89,5 +88,4 @@ public class JwtTokenProvider {
         }
         return false;
     }
-
 }
