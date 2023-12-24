@@ -25,7 +25,7 @@ public class UserController {
         return userService.getAll();
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public Mono<ResponseEntity<UserDTO>> create(@RequestBody @Valid UserSignup dto) {
         return userService.create(Mono.just(dto))
                 .map(userDTO -> ResponseEntity.status(HttpStatus.CREATED).body(userDTO));
