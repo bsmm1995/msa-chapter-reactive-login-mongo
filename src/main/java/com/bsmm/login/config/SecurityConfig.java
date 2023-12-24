@@ -57,10 +57,10 @@ public class SecurityConfig {
                         .withUsername(userEntity.getFullName())
                         .password(userEntity.getPassword())
                         .authorities(userEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.name())).toList())
-                        .accountExpired(!userEntity.isActive())
-                        .credentialsExpired(!userEntity.isActive())
-                        .disabled(!userEntity.isActive())
-                        .accountLocked(!userEntity.isActive())
+                        .accountExpired(!userEntity.getIsActive())
+                        .credentialsExpired(!userEntity.getIsActive())
+                        .disabled(!userEntity.getIsActive())
+                        .accountLocked(!userEntity.getIsActive())
                         .build()
                 );
     }

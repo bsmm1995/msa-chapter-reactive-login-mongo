@@ -31,13 +31,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Mono<UserDTO> create(Mono<UserSignup> signupMono) {
-        return signupMono.filterWhen(userSignup -> userRepository.existsByUsername(userSignup.getUsername())
+        return signupMono.filterWhen(userSignup -> userRepository.existsByUsername(userSignup.username())
                         .map(Boolean.FALSE::equals))
                 .switchIfEmpty(Mono.error(new UserFoundException("Usuario ya en uso")))
                 .flatMap(userSignup -> {
                     UserEntity newUser = UserMapper.INSTANCE.toEntity(userSignup);
-                    newUser.setPassword(passwordEncoder.encode(userSignup.getPassword()));
-                    return userRepository.save(newUser);
+                    return userRepository.save(newUser.withPassword(passwordEncoder.encode(userSignup.password())));
                 })
                 .map(UserMapper.INSTANCE::toDto);
     }

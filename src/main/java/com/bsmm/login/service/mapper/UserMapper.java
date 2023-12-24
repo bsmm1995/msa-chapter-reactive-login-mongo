@@ -14,11 +14,8 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "roles", ignore = true)
     @Mapping(target = "isActive", constant = "true")
+    @Mapping(target = "password", ignore = true)
     UserEntity toEntity(UserSignup dto);
-
-    @Mapping(target = "roles", ignore = true)
     UserDTO toDto(UserEntity entity);
-
 }

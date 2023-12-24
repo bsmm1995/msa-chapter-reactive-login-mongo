@@ -1,19 +1,13 @@
 package com.bsmm.login.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.bsmm.login.domain.enums.ERole;
 
-import java.io.Serializable;
 import java.util.Set;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDTO implements Serializable {
-    private String id;
-    private String fullName;
-    private String username;
-    private Boolean isActive;
-    private Set<String> roles;
+public record UserDTO(
+        String id,
+        String fullName,
+        String username,
+        Boolean isActive,
+        Set<ERole> roles) {
 }

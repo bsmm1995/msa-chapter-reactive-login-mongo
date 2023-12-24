@@ -38,6 +38,7 @@ public class DataInitializer {
                                             .fullName(username)
                                             .password(passwordEncoder.encode(jwtProperties.getPassword()))
                                             .username(username + "@email.com")
+                                            .isActive(Boolean.TRUE)
                                             .build();
 
                                     return this.users.save(user);

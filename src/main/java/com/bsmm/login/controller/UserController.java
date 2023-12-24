@@ -2,12 +2,15 @@ package com.bsmm.login.controller;
 
 import com.bsmm.login.service.UserService;
 import com.bsmm.login.service.dto.UserDTO;
+import com.bsmm.login.service.dto.UserSignup;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Validated
 @RestController
@@ -21,4 +24,12 @@ public class UserController {
     public Flux<UserDTO> getAll() {
         return userService.getAll();
     }
+
+    @PostMapping("/users")
+    public Mono<ResponseEntity<UserDTO>> create(@RequestBody @Valid UserSignup dto) {
+        return userService.create(Mono.just(dto))
+                .map(userDTO -> ResponseEntity.status(HttpStatus.CREATED).body(userDTO));
+    }
+
+
 }
