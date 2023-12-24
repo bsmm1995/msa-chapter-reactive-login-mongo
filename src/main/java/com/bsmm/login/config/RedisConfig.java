@@ -28,6 +28,7 @@ public class RedisConfig {
     private int port;
 
     @Bean
+    @Primary
     public ReactiveRedisOperations<String, LoginResponse> redisOperations(ReactiveRedisConnectionFactory factory) {
         Jackson2JsonRedisSerializer<LoginResponse> serializer = new Jackson2JsonRedisSerializer<>(LoginResponse.class);
 

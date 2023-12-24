@@ -4,6 +4,7 @@ package com.bsmm.login.service.impl;
 import com.bsmm.login.repository.UserRepository;
 import com.bsmm.login.security.JwtTokenProvider;
 import com.bsmm.login.service.AuthService;
+import com.bsmm.login.service.RedisService;
 import com.bsmm.login.service.dto.LoginRequest;
 import com.bsmm.login.service.dto.LoginResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider tokenProvider;
     private final ReactiveAuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final RedisService redisService;
+
 
     @Override
     public Mono<LoginResponse> loginUser(Mono<LoginRequest> loginRequest) {
@@ -29,7 +32,11 @@ public class AuthServiceImpl implements AuthService {
                 .flatMap(login -> authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(
                                 login.username(), login.password()))
-                        .map(tokenProvider::getResponse));
+                        .map(tokenProvider::getResponse))
+                .flatMap(loginResponse -> redisService.saveSession(loginResponse).map(aBoolean -> {
+                    log.info("Redis save {}", aBoolean);
+                    return loginResponse;
+                }));
     }
 
     @Override
@@ -42,8 +49,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Mono<Void> logoutUser(Mono<String> stringMono) {
-        log.info("Eliminar session desde REDIS");
-        return Mono.empty();
+        return stringMono.flatMap(token -> redisService.deleteSession(token).flatMap(aLong -> {
+            log.info("Redis delete {}", aLong);
+            return Mono.empty();
+        }));
     }
-
 }
