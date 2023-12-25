@@ -53,11 +53,10 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    @SuppressWarnings("unchecked")
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
-
-        List<String> stringList = (ArrayList<String>) claims.get(Constants.CLAIM_ROLES);
-
+        ArrayList<String> stringList = (ArrayList<String>) claims.get(Constants.CLAIM_ROLES);
         Collection<? extends GrantedAuthority> authorities = stringList == null
                 ? AuthorityUtils.NO_AUTHORITIES
                 : AuthorityUtils.createAuthorityList(stringList);
@@ -67,7 +66,7 @@ public class JwtTokenProvider {
     }
 
     public String getUserNameFromJwt(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(depureToken(token)).getBody().getSubject();
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(depureToken(token)).getPayload().getSubject();
     }
 
     private String depureToken(String token) {
@@ -78,7 +77,7 @@ public class JwtTokenProvider {
     }
 
     public String getClaimId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(depureToken(token)).getBody().getId();
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(depureToken(token)).getPayload().getId();
     }
 
     public boolean validateToken(String token) {
