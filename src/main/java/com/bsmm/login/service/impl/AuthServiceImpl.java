@@ -29,15 +29,28 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Mono<LoginResponse> loginUser(Mono<LoginRequest> loginRequest) {
         return loginRequest
-                .flatMap(login -> authenticationManager
+                .flatMap(login -> {
+                    log.info("login {}", login);
+                    return authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(
-                                login.username(), login.password()))
-                        .flatMap(authentication -> userRepository.findByUsername(authentication.getName())
-                                .map(tokenProvider::getResponse)))
-                .flatMap(loginResponse -> redisService.saveSession(loginResponse).map(aBoolean -> {
-                    log.info("Redis save {}", aBoolean);
-                    return loginResponse;
-                }));
+                                login.username(), login.password()));
+                })
+                .flatMap(authentication -> {
+                    log.info("authentication {}", authentication);
+                    return userRepository.findByUsername(authentication.getName());
+                })
+                .flatMap(userEntity -> {
+                    log.info("userEntity {}", userEntity);
+                    return Mono.just(tokenProvider.getResponse(userEntity));
+                })
+                .flatMap(loginResponse -> {
+                    log.info("loginResponse {}", loginResponse);
+                    return redisService.saveSession(loginResponse)
+                            .map(aBoolean -> {
+                                log.info("Redis save {}", aBoolean);
+                                return loginResponse;
+                            });
+                });
     }
 
     @Override

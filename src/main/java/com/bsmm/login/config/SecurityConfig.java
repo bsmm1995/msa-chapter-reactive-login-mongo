@@ -38,7 +38,7 @@ public class SecurityConfig {
     public ReactiveUserDetailsService userDetailsService(UserRepository users) {
         return username -> users.findByUsername(username)
                 .map(userEntity -> User
-                        .withUsername(userEntity.getFullName())
+                        .withUsername(userEntity.getUsername())
                         .password(userEntity.getPassword())
                         .authorities(userEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.name())).toList())
                         .accountExpired(!userEntity.getIsActive())
