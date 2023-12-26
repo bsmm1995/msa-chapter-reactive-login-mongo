@@ -26,9 +26,8 @@ public class SecurityConfig {
                 .authenticationManager(reactiveAuthenticationManager)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(it -> it
-                        // .pathMatchers(string).hasRole("ADMIN")
+                        .pathMatchers("/v3/**").permitAll()
                         .pathMatchers("/users/**").authenticated()
-                        //.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
                         .anyExchange().permitAll()
                 )
                 .addFilterAt(new JwtTokenAuthenticationFilter(tokenProvider), SecurityWebFiltersOrder.HTTP_BASIC)
